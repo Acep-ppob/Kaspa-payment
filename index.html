@@ -602,14 +602,15 @@ async function checkSession() {
 // =========================
 async function showProfile() {
 
-    document.getElementById("dashboard").style.display = "none";
-    document.getElementById("profilePage").style.display = "block";
-
     const {
-        data: { user }
+        data: { user },
+        error: userError
     } = await db.auth.getUser();
 
-    if (!user) return;
+    if (userError || !user) {
+        alert("Sesi login tidak ditemukan.");
+        return;
+    }
 
     const { data, error } = await db
         .from("profiles")
@@ -618,7 +619,8 @@ async function showProfile() {
         .single();
 
     if (error) {
-        console.log(error);
+        console.log("Profile error:", error);
+        alert("Data profil tidak ditemukan: " + error.message);
         return;
     }
 
@@ -632,15 +634,18 @@ async function showProfile() {
         user.email || "-";
 
     document.getElementById("profileId").textContent =
-        user.id;
+        user.id || "-";
 
     document.getElementById("profileRole").textContent =
         data.role || "-";
 
     document.getElementById("profileBalance").textContent =
         "Rp " + Number(data.balance || 0).toLocaleString("id-ID");
-}
 
+    // Tampilkan halaman profil setelah data berhasil dimuat
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("profilePage").style.display = "block";
+}
 
 // =========================
 // KEMBALI KE DASHBOARD
