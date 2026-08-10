@@ -372,6 +372,152 @@ async function loadProfile() {
     }
 }
 
+// =========================
+// TAMPILKAN REGISTER
+// =========================
+function showRegister() {
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("registerPage").style.display = "block";
+}
+
+
+// =========================
+// TAMPILKAN LOGIN
+// =========================
+function showLogin() {
+    document.getElementById("registerPage").style.display = "none";
+    document.getElementById("loginPage").style.display = "block";
+}
+
+
+// =========================
+// REGISTER
+// =========================
+async function register() {
+
+    const name = document.getElementById("registerName").value.trim();
+    const phone = document.getElementById("registerPhone").value.trim();
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value;
+    const password2 = document.getElementById("registerPassword2").value;
+
+    if (!name || !phone || !email || !password || !password2) {
+        alert("Semua data wajib diisi.");
+        return;
+    }
+
+    if (password.length < 6) {
+        alert("Password minimal 6 karakter.");
+        return;
+    }
+
+    if (password !== password2) {
+        alert("Konfirmasi password tidak sama.");
+        return;
+    }
+
+    const { data, error } = await db.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+            data: {
+                full_name: name,
+                phone: phone
+            }
+        }
+    });
+
+    if (error) {
+        alert("Pendaftaran gagal: " + error.message);
+        return;
+    }
+
+    if (!data.user) {
+        alert("Pendaftaran gagal. Silakan coba lagi.");
+        return;
+    }
+
+    alert("Pendaftaran berhasil! Silakan login.");
+
+    document.getElementById("registerName").value = "";
+    document.getElementById("registerPhone").value = "";
+    document.getElementById("registerEmail").value = "";
+    document.getElementById("registerPassword").value = "";
+    document.getElementById("registerPassword2").value = "";
+
+    showLogin();
+}
+
+
+// =========================
+// LOGIN
+// =========================
+async function login() {
+
+    const email = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (email === "" || password === "") {
+        alert("Email dan password wajib diisi.");
+        return;
+    }
+
+    const { data, error } = await db.auth.signInWithPassword({
+        email: email,
+        password: password
+    });
+
+    if (error) {
+        alert("Login gagal: " + error.message);
+        return;
+    }
+
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("registerPage").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+
+    await loadProfile();
+}
+
+
+// =========================
+// LOAD PROFILE & SALDO
+// =========================
+async function loadProfile() {
+
+    const {
+        data: { user }
+    } = await db.auth.getUser();
+
+    if (!user) return;
+
+    const { data, error } = await db
+        .from("profiles")
+        .select("full_name, phone, role, balance")
+        .eq("id", user.id)
+        .single();
+
+    if (error) {
+        console.log(error);
+        return;
+    }
+
+    const nama = data.full_name || "Pengguna";
+
+    const welcome = document.querySelector("#dashboard .header p");
+
+    if (welcome) {
+        welcome.textContent = "Selamat datang, " + nama;
+    }
+
+    const saldo = document.querySelector(".saldo h2");
+
+    if (saldo) {
+        saldo.textContent =
+            "Rp " + Number(data.balance || 0).toLocaleString("id-ID");
+    }
+}
+
 
 // =========================
 // LOGOUT
@@ -381,12 +527,13 @@ async function logout() {
     await db.auth.signOut();
 
     document.getElementById("dashboard").style.display = "none";
+    document.getElementById("registerPage").style.display = "none";
     document.getElementById("loginPage").style.display = "block";
 }
 
 
 // =========================
-// CEK SESSION SAAT HALAMAN DIBUKA
+// CEK SESSION
 // =========================
 async function checkSession() {
 
@@ -397,6 +544,7 @@ async function checkSession() {
     if (session) {
 
         document.getElementById("loginPage").style.display = "none";
+        document.getElementById("registerPage").style.display = "none";
         document.getElementById("dashboard").style.display = "block";
 
         await loadProfile();
@@ -404,11 +552,13 @@ async function checkSession() {
     } else {
 
         document.getElementById("loginPage").style.display = "block";
+        document.getElementById("registerPage").style.display = "none";
         document.getElementById("dashboard").style.display = "none";
     }
 }
 
 checkSession();
+
 
 </script>
 
