@@ -268,9 +268,9 @@ button {
       PPOB
     </div>
 
-    <div class="menu-item" onclick="produk('Riwayat')">
-      <div class="icon">📋</div>
-      Riwayat
+    <div class="menu-item" onclick="showHistory()">
+  <div class="icon">📋</div>
+  Riwayat
     </div>
     
         <div class="menu-item" onclick="showTopUp()">
@@ -537,45 +537,6 @@ async function register() {
     showLogin();
 }
 
-  // =========================
-// LOAD PROFILE & SALDO
-// =========================
-async function loadProfile() {
-
-    const {
-        data: { user }
-    } = await db.auth.getUser();
-
-    if (!user) return;
-
-    const { data, error } = await db
-        .from("profiles")
-        .select("full_name, phone, role, balance")
-        .eq("id", user.id)
-        .single();
-
-    if (error) {
-        console.log(error);
-        return;
-    }
-
-    const nama = data.full_name || "Pengguna";
-
-    const welcome = document.querySelector("#dashboard .header p");
-
-    if (welcome) {
-        welcome.textContent = "Selamat datang, " + nama;
-    }
-
-    const saldo = document.querySelector(".saldo h2");
-
-    if (saldo) {
-        saldo.textContent =
-            "Rp " + Number(data.balance || 0).toLocaleString("id-ID");
-    }
-}
-
-
 // =========================
 // LOGOUT
 // =========================
@@ -663,7 +624,109 @@ async function buatTopUp(amount) {
         "\nStatus: Menunggu pembayaran/verifikasi."
     );
 }
-  // =========================
+// =========================
+// TAMPILKAN RIWAYAT
+// =========================
+async function showHistory() {
+
+    const {
+        data: { user },
+        error: userError
+    } = await db.auth.getUser();
+
+    if (userError || !user) {
+        alert("Sesi login tidak ditemukan.");
+        return;
+    }
+
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("topUpPage").style.display = "none";
+    document.getElementById("profilePage").style.display = "none";
+    document.getElementById("adminPage").style.display = "none";
+
+    let historyPage = document.getElementById("historyPage");
+
+    if (!historyPage) {
+        historyPage = document.createElement("div");
+        historyPage.id = "historyPage";
+
+        historyPage.innerHTML = `
+            <div class="header">
+                <h1>📋 Riwayat Transaksi</h1>
+                <p>Riwayat transaksi Anda</p>
+            </div>
+
+            <div class="section">
+                <div id="historyList" class="riwayat">
+                    Memuat riwayat...
+                </div>
+            </div>
+
+            <button class="logout" onclick="backToDashboard()">
+                KEMBALI
+            </button>
+        `;
+
+        document.body.appendChild(historyPage);
+    }
+
+    historyPage.style.display = "block";
+
+    const historyList = document.getElementById("historyList");
+
+    const { data, error } = await db
+        .from("transactions")
+        .select("id, type, amount, status, description, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        console.log("History error:", error);
+        historyList.innerHTML =
+            "Gagal memuat riwayat: " + error.message;
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        historyList.innerHTML = "Belum ada transaksi.";
+        return;
+    }
+
+    historyList.innerHTML = "";
+
+    data.forEach(transaction => {
+
+        const item = document.createElement("div");
+
+        item.style.border = "1px solid #ddd";
+        item.style.borderRadius = "10px";
+        item.style.padding = "12px";
+        item.style.marginBottom = "10px";
+
+        item.innerHTML = `
+            <strong>${transaction.type}</strong>
+
+            <div>
+                Nominal:
+                <strong>
+                    Rp ${Number(transaction.amount).toLocaleString("id-ID")}
+                </strong>
+            </div>
+
+            <div>
+                Status:
+                <strong>${transaction.status}</strong>
+            </div>
+
+            <div>
+                ${transaction.description || ""}
+            </div>
+        `;
+
+        historyList.appendChild(item);
+    });
+}
+// =========================
 // TAMPILKAN TOP UP ADMIN
 // =========================
 async function loadAdminTransactions() {
