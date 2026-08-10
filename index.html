@@ -448,8 +448,19 @@ async function loadProfile() {
         saldo.textContent = "Rp " +
             Number(data.balance || 0).toLocaleString("id-ID");
     }
-}
 
+// =========================
+// TAMPILKAN ADMIN PANEL
+// =========================
+if (data.role === "admin") {
+    const adminPage = document.getElementById("adminPage");
+
+    if (adminPage) {
+        adminPage.style.display = "block";
+        await loadAdminTransactions();
+    }
+  }
+}
 // =========================
 // TAMPILKAN REGISTER
 // =========================
