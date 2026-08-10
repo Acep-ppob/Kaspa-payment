@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AEON Payment</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    .header {
+      background: #0878c9;
+      color: white;
+      padding: 25px 20px;
+      border-radius: 0 0 25px 25px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .header p {
+      margin: 7px 0 0;
+      opacity: 0.9;
+    }
+
+    .saldo {
+      background: white;
+      margin: -20px 20px 20px;
+      padding: 20px;
+      border-radius: 18px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .saldo kecil {
+      color: #777;
+    }
+
+    .saldo h2 {
+      margin: 8px 0;
+      color: #0878c9;
+    }
+
+    .menu {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 0 20px;
+    }
+
+    .menu-item {
+      background: white;
+      padding: 18px 8px;
+      text-align: center;
+      border-radius: 16px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+      font-size: 14px;
+    }
+
+    .icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .section {
+      padding: 25px 20px 10px;
+    }
+
+    .section h3 {
+      margin: 0 0 12px;
+    }
+
+    .riwayat {
+      background: white;
+      padding: 16px;
+      border-radius: 15px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 30px 10px;
+      color: #888;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>AEON PAYMENT</h1>
+    <p>PPOB & Pembayaran Digital</p>
+  </div>
+
+  <div class="saldo">
+    <div>Saldo Anda</div>
+    <h2>Rp 0</h2>
+    <div style="color:#777;">Saldo utama</div>
+  </div>
+
+  <div class="menu">
+
+    <div class="menu-item">
+      <div class="icon">📱</div>
+      Pulsa
+    </div>
+
+    <div class="menu-item">
+      <div class="icon">📡</div>
+      Paket Data
+    </div>
+
+    <div class="menu-item">
+      <div class="icon">⚡</div>
+      Token PLN
+    </div>
+
+    <div class="menu-item">
+      <div class="icon">💳</div>
+      E-Wallet
+    </div>
+
+    <div class="menu-item">
+      <div class="icon">🧾</div>
+      PPOB
+    </div>
+
+    <div class="menu-item">
+      <div class="icon">📋</div>
+      Riwayat
+    </div>
+
+  </div>
+
+  <div class="section">
+    <h3>Transaksi Terakhir</h3>
+
+    <div class="riwayat">
+      Belum ada transaksi.
+    </div>
+  </div>
+
+  <div class="footer">
+    AEON PAYMENT © 2026
+  </div>
+
+</body>
+</html>
