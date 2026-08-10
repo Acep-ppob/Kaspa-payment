@@ -240,34 +240,123 @@ button {
 </div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+
 <script>
+const SUPABASE_URL = "https://uxbnsfczeggrwikqxbng.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4Ym5zZmN6ZWdncndpa3F4Ym5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNzg1NTAsImV4cCI6MjEwMTk1NDU1MH0.tHhNE0m3jFMYBrYTjPCFr11Q-Odg2x_WiP2SjqteqdE";
 
-function login() {
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let username = document.getElementById("username").value;
-  let password = document.getElementById("password").value;
 
-  if (username === "" || password === "") {
-    alert("Username dan password wajib diisi.");
-    return;
-  }
+// =========================
+// LOGIN
+// =========================
+async function login() {
 
-  document.getElementById("loginPage").style.display = "none";
-  document.getElementById("dashboard").style.display = "block";
+    const email = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (email === "" || password === "") {
+        alert("Email dan password wajib diisi.");
+        return;
+    }
+
+    const { data, error } = await db.auth.signInWithPassword({
+        email: email,
+        password: password
+    });
+
+    if (error) {
+        alert("Login gagal: " + error.message);
+        return;
+    }
+
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+
+    await loadProfile();
 }
 
-function logout() {
 
-  document.getElementById("dashboard").style.display = "none";
-  document.getElementById("loginPage").style.display = "block";
+// =========================
+// LOAD PROFILE & SALDO
+// =========================
+async function loadProfile() {
 
+    const {
+        data: { user }
+    } = await db.auth.getUser();
+
+    if (!user) return;
+
+    const { data, error } = await db
+        .from("profiles")
+        .select("full_name, phone, role, balance")
+        .eq("id", user.id)
+        .single();
+
+    if (error) {
+        console.log(error);
+        return;
+    }
+
+    const nama = data.full_name || "Pengguna";
+
+    const welcome = document.querySelector("#dashboard .header p");
+
+    if (welcome) {
+        welcome.textContent = "Selamat datang, " + nama;
+    }
+
+    const saldo = document.querySelector(".saldo h2");
+
+    if (saldo) {
+        saldo.textContent = "Rp " +
+            Number(data.balance || 0).toLocaleString("id-ID");
+    }
 }
 
-function produk(nama) {
 
-  alert("Menu " + nama + " dipilih.");
+// =========================
+// LOGOUT
+// =========================
+async function logout() {
 
+    await db.auth.signOut();
+
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("loginPage").style.display = "block";
 }
+
+
+// =========================
+// CEK SESSION SAAT HALAMAN DIBUKA
+// =========================
+async function checkSession() {
+
+    const {
+        data: { session }
+    } = await db.auth.getSession();
+
+    if (session) {
+
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+
+        await loadProfile();
+
+    } else {
+
+        document.getElementById("loginPage").style.display = "block";
+        document.getElementById("dashboard").style.display = "none";
+    }
+}
+
+checkSession();
 
 </script>
 
