@@ -1,101 +1,186 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KASPA PAYMENT</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KASPA PAYMENT</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
+<style>
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
 
-    body {
-      margin: 0;
-      background: #f4f6f8;
-      color: #222;
-    }
+body {
+  margin: 0;
+  background: #f4f6f8;
+  color: #222;
+}
 
-    .header {
-      background: #0878c9;
-      color: white;
-      padding: 25px 20px;
-      border-radius: 0 0 25px 25px;
-    }
+.header {
+  background: #0878c9;
+  color: white;
+  padding: 28px 20px;
+  border-radius: 0 0 25px 25px;
+}
 
-    .header h1 {
-      margin: 0;
-      font-size: 26px;
-    }
+.header h1 {
+  margin: 0;
+  font-size: 27px;
+}
 
-    .header p {
-      margin: 7px 0 0;
-      opacity: 0.9;
-    }
+.header p {
+  margin: 7px 0 0;
+  opacity: .9;
+}
 
-    .saldo {
-      background: white;
-      margin: -20px 20px 20px;
-      padding: 20px;
-      border-radius: 18px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    }
+.login {
+  padding: 25px 20px;
+}
 
-    .saldo h2 {
-      margin: 8px 0;
-      color: #0878c9;
-    }
+.login-box {
+  background: white;
+  padding: 22px;
+  border-radius: 18px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.08);
+}
 
-    .menu {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      padding: 0 20px;
-    }
+.login-box h2 {
+  margin-top: 0;
+}
 
-    .menu-item {
-      background: white;
-      padding: 18px 8px;
-      text-align: center;
-      border-radius: 16px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-      font-size: 14px;
-    }
+input {
+  width: 100%;
+  padding: 13px;
+  margin: 7px 0;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 15px;
+}
 
-    .icon {
-      font-size: 28px;
-      margin-bottom: 8px;
-    }
+button {
+  width: 100%;
+  border: 0;
+  padding: 13px;
+  margin-top: 10px;
+  border-radius: 10px;
+  background: #0878c9;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
 
-    .section {
-      padding: 25px 20px 10px;
-    }
+.register {
+  text-align: center;
+  margin-top: 15px;
+  color: #0878c9;
+}
 
-    .section h3 {
-      margin: 0 0 12px;
-    }
+#dashboard {
+  display: none;
+}
 
-    .riwayat {
-      background: white;
-      padding: 16px;
-      border-radius: 15px;
-    }
+.saldo {
+  background: white;
+  margin: -20px 20px 20px;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.08);
+}
 
-    .footer {
-      text-align: center;
-      padding: 30px 10px;
-      color: #888;
-      font-size: 13px;
-    }
-  </style>
+.saldo h2 {
+  margin: 8px 0;
+  color: #0878c9;
+}
+
+.menu {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 0 20px;
+}
+
+.menu-item {
+  background: white;
+  padding: 18px 8px;
+  text-align: center;
+  border-radius: 16px;
+  box-shadow: 0 3px 10px rgba(0,0,0,.06);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.menu-item:active {
+  transform: scale(.96);
+}
+
+.icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.section {
+  padding: 25px 20px 10px;
+}
+
+.riwayat {
+  background: white;
+  padding: 16px;
+  border-radius: 15px;
+}
+
+.logout {
+  background: #e53935;
+  margin: 20px;
+  width: calc(100% - 40px);
+}
+
+.footer {
+  text-align: center;
+  padding: 30px 10px;
+  color: #888;
+  font-size: 13px;
+}
+</style>
 </head>
 
 <body>
 
+<!-- LOGIN -->
+<div id="loginPage">
+
   <div class="header">
     <h1>KASPA PAYMENT</h1>
     <p>PPOB & Pembayaran Digital</p>
+  </div>
+
+  <div class="login">
+    <div class="login-box">
+
+      <h2>🔐 Login</h2>
+
+      <input type="text" id="username" placeholder="Username / Nomor HP">
+
+      <input type="password" id="password" placeholder="Password">
+
+      <button onclick="login()">MASUK</button>
+
+      <div class="register">
+        Belum punya akun? Daftar
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+  <div class="header">
+    <h1>KASPA PAYMENT</h1>
+    <p>Selamat datang di dashboard</p>
   </div>
 
   <div class="saldo">
@@ -106,32 +191,32 @@
 
   <div class="menu">
 
-    <div class="menu-item">
+    <div class="menu-item" onclick="produk('Pulsa')">
       <div class="icon">📱</div>
       Pulsa
     </div>
 
-    <div class="menu-item">
+    <div class="menu-item" onclick="produk('Paket Data')">
       <div class="icon">📡</div>
       Paket Data
     </div>
 
-    <div class="menu-item">
+    <div class="menu-item" onclick="produk('Token PLN')">
       <div class="icon">⚡</div>
       Token PLN
     </div>
 
-    <div class="menu-item">
+    <div class="menu-item" onclick="produk('E-Wallet')">
       <div class="icon">💳</div>
       E-Wallet
     </div>
 
-    <div class="menu-item">
+    <div class="menu-item" onclick="produk('PPOB')">
       <div class="icon">🧾</div>
       PPOB
     </div>
 
-    <div class="menu-item">
+    <div class="menu-item" onclick="produk('Riwayat')">
       <div class="icon">📋</div>
       Riwayat
     </div>
@@ -146,9 +231,45 @@
     </div>
   </div>
 
+  <button class="logout" onclick="logout()">KELUAR</button>
+
   <div class="footer">
     KASPA PAYMENT © 2026
   </div>
+
+</div>
+
+
+<script>
+
+function login() {
+
+  let username = document.getElementById("username").value;
+  let password = document.getElementById("password").value;
+
+  if (username === "" || password === "") {
+    alert("Username dan password wajib diisi.");
+    return;
+  }
+
+  document.getElementById("loginPage").style.display = "none";
+  document.getElementById("dashboard").style.display = "block";
+}
+
+function logout() {
+
+  document.getElementById("dashboard").style.display = "none";
+  document.getElementById("loginPage").style.display = "block";
+
+}
+
+function produk(nama) {
+
+  alert("Menu " + nama + " dipilih.");
+
+}
+
+</script>
 
 </body>
 </html>
