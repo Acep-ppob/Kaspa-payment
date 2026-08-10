@@ -336,7 +336,10 @@ button {
   <button class="logout" onclick="backToDashboard()">
     KEMBALI
   </button>
-<!-- ADMIN PAGE -->
+
+</div> 
+
+  <!-- ADMIN PAGE -->
 <div id="adminPage" style="display:none;">
 
   <div class="header">
@@ -408,37 +411,6 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-
-// =========================
-// LOGIN
-// =========================
-async function login() {
-
-    const email = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value;
-
-    if (email === "" || password === "") {
-        alert("Email dan password wajib diisi.");
-        return;
-    }
-
-    const { data, error } = await db.auth.signInWithPassword({
-        email: email,
-        password: password
-    });
-
-    if (error) {
-        alert("Login gagal: " + error.message);
-        return;
-    }
-
-    document.getElementById("loginPage").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-
-    await loadProfile();
-}
-
 
 // =========================
 // LOAD PROFILE & SALDO
@@ -554,39 +526,7 @@ async function register() {
     showLogin();
 }
 
-
-// =========================
-// LOGIN
-// =========================
-async function login() {
-
-    const email = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value;
-
-    if (email === "" || password === "") {
-        alert("Email dan password wajib diisi.");
-        return;
-    }
-
-    const { data, error } = await db.auth.signInWithPassword({
-        email: email,
-        password: password
-    });
-
-    if (error) {
-        alert("Login gagal: " + error.message);
-        return;
-    }
-
-    document.getElementById("loginPage").style.display = "none";
-    document.getElementById("registerPage").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-
-    await loadProfile();
-}
-
-
-// =========================
+  // =========================
 // LOAD PROFILE & SALDO
 // =========================
 async function loadProfile() {
@@ -711,6 +651,90 @@ async function buatTopUp(amount) {
         Number(amount).toLocaleString("id-ID") +
         "\nStatus: Menunggu pembayaran/verifikasi."
     );
+}
+  // =========================
+// TAMPILKAN TOP UP ADMIN
+// =========================
+async function loadAdminTransactions() {
+
+    const container = document.getElementById("adminTransactions");
+
+    if (!container) {
+        console.log("Element adminTransactions tidak ditemukan.");
+        return;
+    }
+
+    container.innerHTML = "Memuat transaksi...";
+
+    const { data, error } = await db
+        .from("transactions")
+        .select(`
+            id,
+            user_id,
+            amount,
+            status,
+            description,
+            created_at
+        `)
+        .eq("type", "TOPUP")
+        .eq("status", "pending")
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        console.log("Admin transaksi error:", error);
+        container.innerHTML =
+            "Gagal memuat transaksi: " + error.message;
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        container.innerHTML = "Tidak ada Top Up yang menunggu.";
+        return;
+    }
+
+    container.innerHTML = "";
+
+    data.forEach(transaction => {
+
+        const item = document.createElement("div");
+
+        item.style.border = "1px solid #ddd";
+        item.style.borderRadius = "10px";
+        item.style.padding = "12px";
+        item.style.marginBottom = "10px";
+
+        item.innerHTML = `
+            <div>
+                <strong>Top Up</strong>
+            </div>
+
+            <div>
+                Nominal:
+                <strong>
+                    Rp ${Number(transaction.amount).toLocaleString("id-ID")}
+                </strong>
+            </div>
+
+            <div>
+                User ID:
+                ${transaction.user_id}
+            </div>
+
+            <div>
+                Status:
+                <strong>${transaction.status}</strong>
+            </div>
+
+            <div style="margin-top:10px;">
+                <button
+                    onclick="approveTopUp('${transaction.id}')">
+                    SETUJUI
+                </button>
+            </div>
+        `;
+
+        container.appendChild(item);
+    });
 }
   // =========================
 // TAMPILKAN PROFILE
