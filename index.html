@@ -651,6 +651,46 @@ function showTopUp() {
 
 }
 // =========================
+// BUAT PERMINTAAN TOP UP
+// =========================
+async function buatTopUp(amount) {
+
+    const {
+        data: { user },
+        error: userError
+    } = await db.auth.getUser();
+
+    if (userError || !user) {
+        alert("Sesi login tidak ditemukan.");
+        return;
+    }
+
+    const { data, error } = await db
+        .from("transactions")
+        .insert({
+            user_id: user.id,
+            type: "TOPUP",
+            amount: amount,
+            status: "pending",
+            description: "Permintaan Top Up Saldo"
+        })
+        .select()
+        .single();
+
+    if (error) {
+        console.log("Top Up error:", error);
+        alert("Top Up gagal: " + error.message);
+        return;
+    }
+
+    alert(
+        "Permintaan Top Up berhasil dibuat.\n\n" +
+        "Nominal: Rp " +
+        Number(amount).toLocaleString("id-ID") +
+        "\nStatus: Menunggu pembayaran/verifikasi."
+    );
+}
+  // =========================
 // TAMPILKAN PROFILE
 // =========================
 async function showProfile() {
