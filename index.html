@@ -272,7 +272,10 @@ button {
       <div class="icon">📋</div>
       Riwayat
     </div>
-
+<div class="menu-item" onclick="showProfile()">
+  <div class="icon">👤</div>
+  Profil
+</div>
   </div>
 
   <div class="section">
@@ -291,6 +294,43 @@ button {
 
 </div>
 
+<!-- PROFILE -->
+<div id="profilePage" style="display:none;">
+
+  <div class="header">
+    <h1>👤 Profil Saya</h1>
+    <p>Informasi akun Anda</p>
+  </div>
+
+  <div class="section">
+
+    <div class="riwayat">
+      <p><strong>Nama Lengkap</strong></p>
+      <p id="profileName">-</p>
+
+      <p><strong>Nomor HP</strong></p>
+      <p id="profilePhone">-</p>
+
+      <p><strong>Email</strong></p>
+      <p id="profileEmail">-</p>
+
+      <p><strong>ID Pengguna</strong></p>
+      <p id="profileId">-</p>
+
+      <p><strong>Role</strong></p>
+      <p id="profileRole">-</p>
+
+      <p><strong>Saldo</strong></p>
+      <p id="profileBalance">Rp 0</p>
+    </div>
+
+  </div>
+
+  <button class="logout" onclick="backToDashboard()">
+    KEMBALI
+  </button>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -530,7 +570,7 @@ async function logout() {
     document.getElementById("registerPage").style.display = "none";
     document.getElementById("loginPage").style.display = "block";
 }
-
+  }
 
 // =========================
 // CEK SESSION
@@ -549,16 +589,71 @@ async function checkSession() {
 
         await loadProfile();
 
-    } else {
+} else {
 
-        document.getElementById("loginPage").style.display = "block";
-        document.getElementById("registerPage").style.display = "none";
-        document.getElementById("dashboard").style.display = "none";
-    }
+    document.getElementById("loginPage").style.display = "block";
+    document.getElementById("registerPage").style.display = "none";
+    document.getElementById("dashboard").style.display = "none";
+}
 }
 
-checkSession();
+// =========================
+// TAMPILKAN PROFILE
+// =========================
+async function showProfile() {
 
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("profilePage").style.display = "block";
+
+    const {
+        data: { user }
+    } = await db.auth.getUser();
+
+    if (!user) return;
+
+    const { data, error } = await db
+        .from("profiles")
+        .select("full_name, phone, role, balance")
+        .eq("id", user.id)
+        .single();
+
+    if (error) {
+        console.log(error);
+        return;
+    }
+
+    document.getElementById("profileName").textContent =
+        data.full_name || "-";
+
+    document.getElementById("profilePhone").textContent =
+        data.phone || "-";
+
+    document.getElementById("profileEmail").textContent =
+        user.email || "-";
+
+    document.getElementById("profileId").textContent =
+        user.id;
+
+    document.getElementById("profileRole").textContent =
+        data.role || "-";
+
+    document.getElementById("profileBalance").textContent =
+        "Rp " + Number(data.balance || 0).toLocaleString("id-ID");
+}
+
+
+// =========================
+// KEMBALI KE DASHBOARD
+// =========================
+function backToDashboard() {
+
+    document.getElementById("profilePage").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+
+}
+
+
+checkSession();
 
 </script>
 
