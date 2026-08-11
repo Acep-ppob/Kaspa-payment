@@ -339,6 +339,80 @@ button {
 
 </div> 
 
+  <!-- PULSA PAGE -->
+<div id="pulsaPage" style="display:none;">
+
+  <div class="header">
+    <h1>📱 Beli Pulsa</h1>
+    <p>Isi pulsa dengan mudah dan cepat</p>
+  </div>
+
+  <div class="section">
+
+    <div class="riwayat">
+
+      <h3>Nomor HP</h3>
+
+      <input
+        type="tel"
+        id="pulsaPhone"
+        placeholder="08xxxxxxxxxx"
+        maxlength="15"
+      >
+
+      <h3>Pilih Nominal</h3>
+
+      <div class="menu" style="padding:0;">
+
+        <div class="menu-item" onclick="pilihPulsa(5000)">
+          Rp 5.000
+        </div>
+
+        <div class="menu-item" onclick="pilihPulsa(10000)">
+          Rp 10.000
+        </div>
+
+        <div class="menu-item" onclick="pilihPulsa(20000)">
+          Rp 20.000
+        </div>
+
+        <div class="menu-item" onclick="pilihPulsa(25000)">
+          Rp 25.000
+        </div>
+
+        <div class="menu-item" onclick="pilihPulsa(50000)">
+          Rp 50.000
+        </div>
+
+        <div class="menu-item" onclick="pilihPulsa(100000)">
+          Rp 100.000
+        </div>
+
+      </div>
+
+      <div id="pulsaSelected"
+           style="margin-top:20px;
+                  padding:15px;
+                  background:#f4f6f8;
+                  border-radius:12px;
+                  text-align:center;">
+        Pilih nominal pulsa
+      </div>
+
+      <button onclick="beliPulsa()">
+        BELI PULSA
+      </button>
+
+    </div>
+
+  </div>
+
+  <button class="logout" onclick="backToDashboard()">
+    KEMBALI
+  </button>
+
+</div>
+ 
   <!-- ADMIN PAGE -->
 <div id="adminPage" style="display:none;">
 
@@ -973,13 +1047,113 @@ async function showProfile() {
 // =========================
 // KEMBALI KE DASHBOARD
 // =========================
+
 function backToDashboard() {
 
     document.getElementById("profilePage").style.display = "none";
+    document.getElementById("topUpPage").style.display = "none";
+    document.getElementById("adminPage").style.display = "none";
+
+    const pulsaPage = document.getElementById("pulsaPage");
+
+    if (pulsaPage) {
+        pulsaPage.style.display = "none";
+    }
+
+    const historyPage = document.getElementById("historyPage");
+
+    if (historyPage) {
+        historyPage.style.display = "none";
+    }
+
     document.getElementById("dashboard").style.display = "block";
 
+    loadProfile();
+    loadDashboardTransactions();
 }
 
+// =========================
+// PULSA
+// =========================
+
+let pulsaNominal = 0;
+
+function produk(jenis) {
+
+    if (jenis === "Pulsa") {
+
+        document.getElementById("dashboard").style.display = "none";
+        document.getElementById("topUpPage").style.display = "none";
+        document.getElementById("profilePage").style.display = "none";
+        document.getElementById("adminPage").style.display = "none";
+
+        document.getElementById("pulsaPage").style.display = "block";
+
+    } else {
+
+        alert(jenis + " belum tersedia. Kita kerjakan berikutnya.");
+    }
+}
+
+function pilihPulsa(amount) {
+
+    pulsaNominal = amount;
+
+    document.getElementById("pulsaSelected").innerHTML =
+        "Pulsa dipilih<br><strong style='font-size:20px;'>" +
+        "Rp " + amount.toLocaleString("id-ID") +
+        "</strong>";
+}
+
+async function beliPulsa() {
+
+    const phone =
+        document.getElementById("pulsaPhone").value.trim();
+
+    if (!phone) {
+        alert("Masukkan nomor HP terlebih dahulu.");
+        return;
+    }
+
+    if (phone.length < 10) {
+        alert("Nomor HP tidak valid.");
+        return;
+    }
+
+    if (pulsaNominal <= 0) {
+        alert("Silakan pilih nominal pulsa.");
+        return;
+    }
+
+    const {
+        data: { user },
+        error: userError
+    } = await db.auth.getUser();
+
+    if (userError || !user) {
+        alert("Sesi login tidak ditemukan.");
+        return;
+    }
+
+    const konfirmasi = confirm(
+        "Konfirmasi Pembelian\n\n" +
+        "Nomor: " + phone + "\n" +
+        "Pulsa: Rp " +
+        pulsaNominal.toLocaleString("id-ID") +
+        "\n\nLanjutkan?"
+    );
+
+    if (!konfirmasi) return;
+
+    alert(
+        "Pesanan pulsa berhasil dibuat.\n\n" +
+        "Nomor: " + phone +
+        "\nNominal: Rp " +
+        pulsaNominal.toLocaleString("id-ID") +
+        "\n\n" +
+        "Tahap berikutnya akan kita sambungkan ke API PPOB."
+    );
+}
 
 checkSession();
 
