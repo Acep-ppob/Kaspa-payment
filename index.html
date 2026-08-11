@@ -287,8 +287,8 @@ button {
   <div class="section">
     <h3>Transaksi Terakhir</h3>
 
-    <div class="riwayat">
-      Belum ada transaksi.
+    <div class="riwayat" id="dashboardTransactions">
+    Memuat transaksi...
     </div>
   </div>
 
@@ -536,7 +536,87 @@ async function register() {
 
     showLogin();
 }
+// =========================
+// TAMPILKAN TRANSAKSI DASHBOARD
+// =========================
+async function loadDashboardTransactions() {
 
+    const container = document.getElementById("dashboardTransactions");
+
+    if (!container) return;
+
+    container.innerHTML = "Memuat transaksi...";
+
+    const {
+        data: { user }
+    } = await db.auth.getUser();
+
+    if (!user) {
+        container.innerHTML = "Silakan login.";
+        return;
+    }
+
+    const { data, error } = await db
+        .from("transactions")
+        .select("type, amount, status, description, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+    if (error) {
+        console.log("Dashboard transaksi error:", error);
+        container.innerHTML = "Gagal memuat transaksi.";
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        container.innerHTML = "Belum ada transaksi.";
+        return;
+    }
+
+    container.innerHTML = "";
+
+    data.forEach(transaction => {
+
+        const item = document.createElement("div");
+
+        item.style.border = "1px solid #ddd";
+        item.style.borderRadius = "12px";
+        item.style.padding = "14px";
+        item.style.marginBottom = "10px";
+
+        const status =
+            transaction.status === "success"
+                ? "Berhasil"
+                : transaction.status === "pending"
+                ? "Menunggu"
+                : transaction.status;
+
+        item.innerHTML = `
+            <div>
+                <strong>${transaction.type}</strong>
+            </div>
+
+            <div>
+                Nominal:
+                <strong>
+                    Rp ${Number(transaction.amount || 0).toLocaleString("id-ID")}
+                </strong>
+            </div>
+
+            <div>
+                Status:
+                <strong>${status}</strong>
+            </div>
+
+            <div>
+                ${transaction.description || ""}
+            </div>
+        `;
+
+        container.appendChild(item);
+    });
+  }
 // =========================
 // LOGOUT
 // =========================
@@ -566,6 +646,7 @@ async function checkSession() {
         document.getElementById("dashboard").style.display = "block";
 
         await loadProfile();
+await loadDashboardTransactions();
 
 } else {
 
