@@ -1140,20 +1140,64 @@ async function beliPulsa() {
         "Nomor: " + phone + "\n" +
         "Pulsa: Rp " +
         pulsaNominal.toLocaleString("id-ID") +
-        "\n\nLanjutkan?"
+        "\n\n" +
+        "Saldo akan dipotong sesuai nominal.\n\n" +
+        "Lanjutkan?"
     );
 
     if (!konfirmasi) return;
 
+    // =========================
+    // PROSES PEMBELIAN PULSA
+    // =========================
+
+    const { data, error } = await db
+        .rpc("buy_pulsa", {
+            p_phone: phone,
+            p_amount: pulsaNominal
+        });
+
+    if (error) {
+
+        console.log("Pembelian pulsa error:", error);
+
+        alert(
+            "Pembelian pulsa gagal:\n\n" +
+            error.message
+        );
+
+        return;
+    }
+
+    console.log("Pembelian pulsa berhasil:", data);
+
     alert(
-        "Pesanan pulsa berhasil dibuat.\n\n" +
-        "Nomor: " + phone +
-        "\nNominal: Rp " +
+        "Pembelian pulsa berhasil dibuat!\n\n" +
+        "Nomor: " + phone + "\n" +
+        "Nominal: Rp " +
         pulsaNominal.toLocaleString("id-ID") +
         "\n\n" +
-        "Tahap berikutnya akan kita sambungkan ke API PPOB."
+        "Status: Menunggu"
     );
+
+    // =========================
+    // UPDATE SALDO & RIWAYAT
+    // =========================
+
+    await loadProfile();
+    await loadDashboardTransactions();
+
+    // Reset form
+    document.getElementById("pulsaPhone").value = "";
+
+    pulsaNominal = 0;
+
+    document.getElementById("pulsaSelected").innerHTML =
+        "Pilih nominal pulsa";
+
 }
+    
+
 
 checkSession();
 
