@@ -810,7 +810,36 @@ async function loadAdminTransactions() {
         container.appendChild(item);
     });
 }
-  // =========================
+
+// =========================
+// ADMIN - SETUJUI TOP UP
+// =========================
+async function approveTopUp(transactionId) {
+
+    if (!confirm("Yakin ingin menyetujui Top Up ini?")) {
+        return;
+    }
+
+    const { data, error } = await db
+        .rpc("approve_topup", {
+            p_transaction_id: transactionId
+        });
+
+    if (error) {
+        console.log("Approve Top Up error:", error);
+        alert("Gagal menyetujui Top Up:\n" + error.message);
+        return;
+    }
+
+    console.log("Approve berhasil:", data);
+
+    alert("Top Up berhasil disetujui!");
+
+    await loadAdminTransactions();
+    await loadProfile();
+  }
+
+// =========================
 // TAMPILKAN PROFILE
 // =========================
 async function showProfile() {
